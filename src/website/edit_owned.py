@@ -12,7 +12,7 @@ async def edit_owned(db: sqlite3.Connection) -> None:
 
     def _format_owned(owned: list[dict]) -> list[dict]:
         for owned_item in owned:
-            colour = next((x for x in all_colours if x["id"] == owned_item["color"]), {"name": "None"})
+            colour = next((x for x in all_colours if x["id"] == owned_item["color"]), {"name": "None", "rgb": "CCCCCC"})
             owned_item["colorName"] = (
                 f'<div style="width: 80px; height: 25px; background-color: #{colour["rgb"]}; display: inline-block; border: 1px solid #CCCCCC"></div><div style="display: inline-block; height: 25px; vertical-align: top; padding-left: 2px">{colour["name"]}</div>'
             )

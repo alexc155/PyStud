@@ -4,6 +4,7 @@ from ngwidgets import lod_grid
 from nicegui import app, ui
 
 from database.tables import owned_table, project_table
+from utils.colours import get_colours
 
 
 class EditGrid:
@@ -31,8 +32,20 @@ async def edit_project_list(db: sqlite3.Connection, project_name: str):
     if project_name == "none":
         ui.label("No project selected.")
         return
+    
+    all_colours = get_colours()
+
+    def _format_project(project: list[dict]) -> list[dict]:
+        for project_item in project:
+            colour = next((x for x in all_colours if x["id"] == project_item["ldraw_color_id"]), {"name": "None", "rgb": "CCCCCC"})
+            project_item["colorName"] = (
+                f'<div style="width: 80px; height: 25px; background-color: #{colour["rgb"]}; display: inline-block; border: 1px solid #CCCCCC"></div><div style="display: inline-block; height: 25px; vertical-align: top; padding-left: 2px">{colour["name"]}</div>'
+            )
+
+        return project
+    
     ui.label(project_name)
-    project_items = project_table.get_project_items(db, project_name)
+    project_items = _format_project(project_table.get_project_items(db, project_name))
 
     grid_config = lod_grid.GridConfig(
         theme="balham-dark" if app.storage.user["dark_mode"] else "balham",
@@ -50,7 +63,7 @@ async def edit_project_list(db: sqlite3.Connection, project_name: str):
                 "flex": 1,
             },
             {
-                "field": "color_name",
+                "field": "colorName",
                 "headerName": "Color Name",
                 "editable": False,
                 "filter": "agTextColumnFilter",

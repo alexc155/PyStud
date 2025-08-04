@@ -62,6 +62,7 @@ def get_project_items(conn: sqlite3.Connection, name: str) -> list[dict]:
         SELECT 
             project.id, 
             project.color_name,
+            project.ldraw_color_id,
             project.part_name, 
             concat('<img src="data:image/png;base64, ', project.image, '" style="height: 45px" />') AS image, 
             concat('<img src="data:image/png;base64, ', project.image, '" style="height: 80px" />') AS image_mid, 
@@ -70,7 +71,7 @@ def get_project_items(conn: sqlite3.Connection, name: str) -> list[dict]:
         FROM project 
         LEFT JOIN owned ON project.bl_item_no = owned.part AND project.bl_color_id = owned.color
         WHERE project.name = ?
-        ORDER BY project.color_name, project.part_name
+        ORDER BY project.ldraw_color_id, project.part_name
         """,
         (name,),
     )
