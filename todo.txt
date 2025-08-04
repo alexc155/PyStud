@@ -1,0 +1,6 @@
+/ Create ui.row for the content and try to make full screen
+/ Display as cards as well as table
+Add Owned table
+Add calculated field for 'Buy'
+Split Project and items tables and have import status
+Export Buy list
