@@ -18,11 +18,13 @@ def __step(r, g, b, repetitions=1):
 
     return (h2, lum2, v2)
 
+
 def __sort(r, g, b):
     x = (r * 255 * 255) + (g * 255) + b
     return x
 
-def get_colours():
+
+def get_colours() -> list[dict[str, str]]:
     with open("./src/database/colors.csv") as data:
         dict_reader = DictReader(data)
 
@@ -37,3 +39,10 @@ def get_colours():
         )
 
         return list_of_dict
+
+
+def build_colour_block(colour: dict[str, str]) -> str:
+    return f'<div style="width: 80px; height: 25px; background-color: #{colour["rgb"]}; display: inline-block; border: 1px solid #CCCCCC"></div><div style="display: inline-block; height: 25px; vertical-align: top; padding-left: 2px">{colour["name"]}</div>'
+
+
+__all__ = ["get_colours", "build_colour_block"]

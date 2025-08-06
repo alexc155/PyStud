@@ -4,31 +4,30 @@ import sqlite3
 from utils.bl_image import get_image
 
 
-def insert_owned(conn: sqlite3.Connection, owned_file: str) -> bool:
-    """Insert owned elements into the SQLite database."""
-    cursor = conn.cursor()
-
-    for row in csv.DictReader(owned_file.splitlines(), delimiter=","):
-        sqlExisting = """
-            SELECT COUNT(*)
+def __upsert(conn: sqlite3.Connection, cursor: sqlite3.Cursor, row: dict):
+    sqlExisting = """
+            SELECT COUNT(*) AS count
             FROM owned
             WHERE part = ?
-                AND color = ?"""
+                AND color = ?
+                """
 
-        existingPart = cursor.execute(sqlExisting, (row["Part"], row["Color"]))
+    cursor.execute(sqlExisting, (row["Part"], row["Color"]))
+    columns = [column[0] for column in cursor.description]
 
-        if len(existingPart.fetchall()) > 0:
-            # update
-            sql = """
-                UPDATE owned
-                SET quantity = quantity + ?
-                WHERE part = ?
-                    AND color = ?"""
-            cursor.execute(sql, (row["Quantity"], row["Part"], row["Color"]))
-        else:
-            image = get_image(row["Part"], row["Color"])
+    if [dict(zip(columns, row, strict=False)) for row in cursor.fetchall()][0]["count"] > 0:
+        # update
+        sql = """
+            UPDATE owned
+            SET quantity = quantity + ?
+            WHERE part = ?
+                AND color = ?
+            """
+        cursor.execute(sql, (row["Quantity"], row["Part"], row["Color"]))
+    else:
+        image = get_image(row["Part"], row["Color"])
 
-            sql = """
+        sql = """
                 INSERT INTO owned (
                     part,
                     color,
@@ -36,9 +35,17 @@ def insert_owned(conn: sqlite3.Connection, owned_file: str) -> bool:
                     quantity
                 ) VALUES (?,?,?,?)
                 """
-            cursor.execute(sql, (row["Part"], row["Color"], image, row["Quantity"]))
+        cursor.execute(sql, (row["Part"], row["Color"], image, row["Quantity"]))
 
-        conn.commit()
+    conn.commit()
+
+
+def insert_owned(conn: sqlite3.Connection, owned_file: str) -> bool:
+    """Insert owned elements into the SQLite database."""
+    cursor = conn.cursor()
+
+    for row in csv.DictReader(owned_file.splitlines(), delimiter=","):
+        __upsert(conn, cursor, row)
     return True
 
 
@@ -94,4 +101,31 @@ def update_owned(conn: sqlite3.Connection, id: int, owned: int | None) -> bool:
     return cursor.rowcount > 0
 
 
-__all__ = ["insert_owned", "get_owned", "delete_owned", "update_owned"]
+def update_colour(conn: sqlite3.Connection, id: int, colour: int) -> bool:
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT 
+            id,
+            part as Part,
+            color as Color,
+            quantity as Quantity
+        FROM owned 
+        WHERE id = ?
+        """,
+        (id,),
+    )
+    columns = [column[0] for column in cursor.description]
+    row = [dict(zip(columns, row, strict=False)) for row in cursor.fetchall()]
+
+    delete_owned(conn, id)
+
+    row[0]["Color"] = colour
+
+    __upsert(conn, cursor, row[0])
+
+    return True
+
+
+__all__ = ["insert_owned", "get_owned", "delete_owned", "update_owned", "update_colour"]

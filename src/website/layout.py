@@ -26,11 +26,11 @@ async def layout(db: sqlite3.Connection):
         ui.checkbox().bind_value(app.storage.user, "dark_mode")
         ui.icon("brightness_auto").props("material").classes("text-2xl").style("padding: 0 10px 0 0")
 
-    with ui.tab_panels(tabs, value="All Projects").classes("w-full"):
+    with ui.tab_panels(tabs, value="Owned").classes("w-full"):
         with ui.tab_panel("Import Project"):
-            import_project(db)
+            import_project(db, tabs)
         with ui.tab_panel("Import Owned List"):
-            import_owned(db)
+            import_owned(db, tabs)
         with ui.tab_panel("All Projects"):
             list_projects(db, tabs)
         with ui.tab_panel("Project List"):

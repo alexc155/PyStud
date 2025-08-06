@@ -5,7 +5,12 @@ from nicegui import events, ui
 from database.tables import project_table
 
 
-def import_project(db: sqlite3.Connection):
+def __add_project(db: sqlite3.Connection, project_name: str, project_file: str, tabs: ui.tabs):
+    project_table.insert_project(db, project_name, project_file)
+    tabs.value = "All Projects"
+
+
+def import_project(db: sqlite3.Connection, tabs: ui.tabs):
     ui.label("Import Project")
     project_name = ui.input(label="Project Name", placeholder="Enter project name")
 
@@ -21,7 +26,7 @@ def import_project(db: sqlite3.Connection):
 
     ui.button(
         "Add Project",
-        on_click=lambda: project_table.insert_project(db, project_name.value, project_file.value),
+        on_click=lambda: __add_project(db, project_name.value, project_file.value, tabs),
     ).props("primary")
 
 
