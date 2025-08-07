@@ -30,6 +30,9 @@ async def edit_owned(db: sqlite3.Connection) -> None:
     ui.label("Owned")
     owned_items = __format_owned(owned_table.get_owned(db))
 
+    def handle_cell_value_change(e):
+        ui.notify(f"Updated row to: {e.args['data']}")
+
     grid = (
         ui.aggrid(
             {
@@ -38,7 +41,7 @@ async def edit_owned(db: sqlite3.Connection) -> None:
                     {"headerName": "Color", "field": "colorName", "filter": "agTextColumnFilter", "floatingFilter": True},
                     {"headerName": "Part", "field": "partName", "filter": "agTextColumnFilter", "floatingFilter": True},
                     {"headerName": "Image", "field": "image"},
-                    {"headerName": "Quantity", "field": "quantity"},
+                    {"headerName": "Quantity", "field": "quantity", "editable": True},
                 ],
                 "rowData": owned_items,
                 "rowSelection": "multiple",
@@ -46,8 +49,8 @@ async def edit_owned(db: sqlite3.Connection) -> None:
             },
             html_columns=[1, 3],
         )
+        .on("cellValueChanged", handle_cell_value_change)
         .classes("w-full")
-        .on("cellClicked", lambda event: ui.notify(f"Cell value: {event.args['value']}"))
     )
 
     grid.classes(
@@ -57,12 +60,11 @@ async def edit_owned(db: sqlite3.Connection) -> None:
     async def __update_colours_dialog():
         rows = await grid.get_selected_rows()
         if rows:
-            with ui.dialog() as dialog, ui.card():
-                ui.label("Change Colour")
-                with ui.expansion("Colour", icon="palette").classes("w-full"):
+            with ui.dialog().classes(add="w-full") as dialog:
+                with ui.row().classes("w-full h-[80vh] overflow-scroll justify-center").style("background-color: #333333; padding-top: 20px"):
                     for colour in all_colours:
-                        with ui.row():
-                            ui.html(build_colour_block(colour)).on(
+                        with ui.card().style("width: 300px"):
+                            ui.html(build_colour_block(colour)).style(add="cursor: pointer").on(
                                 "click", lambda colour_id=colour["id"]: __update_colour(db, rows, colour_id)
                             )
 
@@ -72,7 +74,10 @@ async def edit_owned(db: sqlite3.Connection) -> None:
         else:
             ui.notify("No rows selected.")
 
+    ui.button("Select all", on_click=lambda: grid.run_grid_method("selectAll"))
     ui.button("Update Colours", on_click=__update_colours_dialog)
+
+    ui.add_css(".q-dialog__inner--minimized > div { max-width: none !important }")
 
 
 __all__ = ["edit_owned"]

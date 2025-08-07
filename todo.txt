@@ -1,6 +1,10 @@
 / Create ui.row for the content and try to make full screen
 / Display as cards as well as table
-Add Owned table
+/ Add Owned table
+
+/ Replace editable grid with aggrid
+/ Show normal images instead of data ones
+
 Add calculated field for 'Buy'
 Split Project and items tables and have import status
 Export Buy list

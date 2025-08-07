@@ -1,7 +1,7 @@
 import csv
 import sqlite3
 
-from utils.bl_image import get_image
+from utils.image import get_image2
 
 
 def __upsert(conn: sqlite3.Connection, cursor: sqlite3.Cursor, row: dict):
@@ -25,7 +25,7 @@ def __upsert(conn: sqlite3.Connection, cursor: sqlite3.Cursor, row: dict):
             """
         cursor.execute(sql, (row["Quantity"], row["Part"], row["Color"]))
     else:
-        image = get_image(row["Part"], row["Color"])
+        image = get_image2(row["Part"], row["Color"])
 
         sql = """
                 INSERT INTO owned (
@@ -57,7 +57,24 @@ def get_owned(conn: sqlite3.Connection) -> list[dict]:
             id,
             part,
             color,
-            concat('<img src="data:image/png;base64, ', image, '" style="height: 45px" />') AS image, 
+            concat('<img src="', image, '" style="height: 45px" />') AS image, 
+            quantity
+        FROM owned 
+        ORDER BY color, part
+        """,
+    )
+    columns = [column[0] for column in cursor.description]
+    return [dict(zip(columns, row, strict=False)) for row in cursor.fetchall()]
+
+
+def get_owned2(conn: sqlite3.Connection) -> list[dict]:
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT 
+            id,
+            part,
+            color,
             quantity
         FROM owned 
         ORDER BY color, part
@@ -82,23 +99,12 @@ def delete_owned(conn: sqlite3.Connection, id: int) -> bool:
     return True
 
 
-def update_owned(conn: sqlite3.Connection, id: int, owned: int | None) -> bool:
+def update_owned(conn: sqlite3.Connection, part: str, colour: int, owned: int | None) -> bool:
     cursor = conn.cursor()
-    sql = """
-    UPDATE owned SET        
-        quantity = ?
-        WHERE id = ?
-    """
 
-    cursor.execute(
-        sql,
-        (
-            owned if owned is not None and int(owned) > 0 else None,
-            id,
-        ),
-    )
-    conn.commit()
-    return cursor.rowcount > 0
+    __upsert(conn, cursor, {"Part": part, "Color": colour, "Quantity": owned})
+
+    return True
 
 
 def update_colour(conn: sqlite3.Connection, id: int, colour: int) -> bool:
@@ -128,4 +134,4 @@ def update_colour(conn: sqlite3.Connection, id: int, colour: int) -> bool:
     return True
 
 
-__all__ = ["insert_owned", "get_owned", "delete_owned", "update_owned", "update_colour"]
+__all__ = ["insert_owned", "get_owned", "get_owned2", "delete_owned", "update_owned", "update_colour"]

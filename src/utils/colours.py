@@ -30,19 +30,19 @@ def get_colours() -> list[dict[str, str]]:
 
         list_of_dict = list(dict_reader)
 
-        # list_of_dict.sort(
-        #     key=lambda key: __step(int(f"0x{key['rgb'][:2]}", 16), int(f"0x{key['rgb'][2:4]}", 16), int(f"0x{key['rgb'][4:6]}", 16), 8)
-        # )
-
         list_of_dict.sort(
-            key=lambda key: __sort(int(f"0x{key['rgb'][:2]}", 16), int(f"0x{key['rgb'][2:4]}", 16), int(f"0x{key['rgb'][4:6]}", 16))
+            key=lambda key: __step(int(f"0x{key['rgb'][:2]}", 16), int(f"0x{key['rgb'][2:4]}", 16), int(f"0x{key['rgb'][4:6]}", 16), 8)
         )
+
+        # list_of_dict.sort(
+        #     key=lambda key: __sort(int(f"0x{key['rgb'][:2]}", 16), int(f"0x{key['rgb'][2:4]}", 16), int(f"0x{key['rgb'][4:6]}", 16))
+        # )
 
         return list_of_dict
 
 
 def build_colour_block(colour: dict[str, str]) -> str:
-    return f'<div style="width: 80px; height: 25px; background-color: #{colour["rgb"]}; display: inline-block; border: 1px solid #CCCCCC"></div><div style="display: inline-block; height: 25px; vertical-align: top; padding-left: 2px">{colour["name"]}</div>'
+    return f'<div style="width: 70px; height: 25px; background-color: #{colour["rgb"]}; display: inline-block; border: 1px solid #CCCCCC"></div><div style="display: inline-block; height: 25px; vertical-align: top; padding-left: 2px">{colour["name"]}</div>'
 
 
 __all__ = ["get_colours", "build_colour_block"]

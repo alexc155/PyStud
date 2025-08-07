@@ -1,4 +1,4 @@
-from nicegui import ui
+from nicegui import app, ui
 
 from database import context
 from website.layout import layout
@@ -6,6 +6,8 @@ from website.layout import layout
 # Db stuff
 db = context.connect()
 context.create_tables(db)
+
+app.add_media_file(local_file="src/website/Question-Mark-Block.png", url_path="/Question-Mark-Block.png")
 
 
 @ui.page("/")

@@ -1,7 +1,7 @@
 import csv
 import sqlite3
 
-from utils.bl_image import get_image
+from utils.image import get_image2
 
 
 def insert_project(conn: sqlite3.Connection, name: str, project_file: str) -> bool:
@@ -9,7 +9,7 @@ def insert_project(conn: sqlite3.Connection, name: str, project_file: str) -> bo
     cursor = conn.cursor()
 
     for row in csv.DictReader(project_file.splitlines(), delimiter=","):
-        image = get_image(row["BLItemNo"], row["BLColorId"])
+        image = get_image2(row["BLItemNo"], row["LDrawColorId"])
 
         sql = """
         INSERT INTO project (
@@ -44,6 +44,8 @@ def insert_project(conn: sqlite3.Connection, name: str, project_file: str) -> bo
             ),
         )
         conn.commit()
+
+    print("Imported")
     return True
 
 
@@ -62,14 +64,17 @@ def get_project_items(conn: sqlite3.Connection, name: str) -> list[dict]:
         SELECT 
             project.id, 
             project.color_name,
+            project.bl_item_no,
             project.ldraw_color_id,
+            project.bl_color_id,
             project.part_name, 
-            concat('<img src="data:image/png;base64, ', project.image, '" style="height: 45px" />') AS image, 
-            concat('<img src="data:image/png;base64, ', project.image, '" style="height: 80px" />') AS image_mid, 
+            project.image, 
+            concat('<img src="', project.image, '" style="height: 45px" />') AS image_sm, 
+            concat('<img src="', project.image, '" style="height: 80px" />') AS image_mid, 
             project.qty, 
             owned.quantity AS owned 
         FROM project 
-        LEFT JOIN owned ON project.bl_item_no = owned.part AND project.bl_color_id = owned.color
+        LEFT JOIN owned ON project.bl_item_no = owned.part AND project.ldraw_color_id = owned.color
         WHERE project.name = ?
         ORDER BY project.ldraw_color_id, project.part_name
         """,
