@@ -5,6 +5,7 @@
 / Replace editable grid with aggrid
 / Show normal images instead of data ones
 
+Add Empty Owned List option
 Add calculated field for 'Buy'
 Split Project and items tables and have import status
 Export Buy list

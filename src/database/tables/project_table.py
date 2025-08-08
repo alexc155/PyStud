@@ -1,7 +1,7 @@
 import csv
 import sqlite3
 
-from utils.image import get_image2
+from utils.image import get_image
 
 
 def insert_project(conn: sqlite3.Connection, name: str, project_file: str) -> bool:
@@ -9,7 +9,7 @@ def insert_project(conn: sqlite3.Connection, name: str, project_file: str) -> bo
     cursor = conn.cursor()
 
     for row in csv.DictReader(project_file.splitlines(), delimiter=","):
-        image = get_image2(row["BLItemNo"], row["LDrawColorId"])
+        image = get_image(row["BLItemNo"], row["LDrawColorId"])
 
         sql = """
         INSERT INTO project (
