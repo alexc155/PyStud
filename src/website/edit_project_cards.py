@@ -16,12 +16,12 @@ async def edit_project_cards(db: sqlite3.Connection, project_id: int, project_na
     def __update_project_item_qty(val: int, id: int):
         update_project_item_qty(db, id, val)
         [item for item in project_items if item["id"] == id][0]["qty"] = val
-        edit_project_list.refresh(db, project_name)
+        edit_project_list.refresh(db, project_id, project_name)
 
     def __update_project_item_owned(val: int, id: int, part: str, colour: int):
         update_owned(conn=db, part=part, colour=colour, owned=val)
         [item for item in project_items if item["id"] == id][0]["owned"] = val
-        edit_project_list.refresh(db, project_name)
+        edit_project_list.refresh(db, project_id, project_name)
 
     @ui.refreshable
     def __show_cards(card_items):

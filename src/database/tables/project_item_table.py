@@ -1,49 +1,71 @@
 import sqlite3
+import time
 
 from utils.image import get_image
 
 
-def insert_project_item(conn: sqlite3.Connection, project_id: int, row: dict) -> bool:
+def insert_project_item(conn: sqlite3.Connection, project_id: int, row: dict, retries=10) -> bool:
     """Insert project data into the SQLite database."""
+
     cursor = conn.cursor()
 
-    image = get_image(row["BLItemNo"], row["LDrawColorId"])
+    try:
+        image = get_image(row["BLItemNo"], row["LDrawColorId"])
 
-    sql = """
-    INSERT INTO project_item (
-        project_id,
-        bl_item_no,
-        element_id,
-        ldraw_id,
-        part_name,
-        bl_color_id,
-        ldraw_color_id,
-        color_name,
-        color_category,
-        image,
-        qty,
-        weight) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
-    """
-    cursor.execute(
-        sql,
-        (
+        sql = """
+        INSERT OR IGNORE INTO project_item (
             project_id,
-            row["BLItemNo"],
-            row["ElementId"],
-            row["LdrawId"],
-            row["PartName"],
-            row["BLColorId"],
-            row["LDrawColorId"],
-            row["ColorName"],
-            row["ColorCategory"],
+            bl_item_no,
+            element_id,
+            ldraw_id,
+            part_name,
+            bl_color_id,
+            ldraw_color_id,
+            color_name,
+            color_category,
             image,
-            row["Qty"] if row["Qty"] is not None and row["Qty"] != 0 else None,
-            row["Weight"],
-        ),
-    )
-    conn.commit()
+            qty,
+            weight) 
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+        """
+        cursor.execute(
+            sql,
+            (
+                project_id,
+                row["BLItemNo"],
+                row["ElementId"],
+                row["LdrawId"],
+                row["PartName"],
+                row["BLColorId"],
+                row["LDrawColorId"],
+                row["ColorName"],
+                row["ColorCategory"],
+                image,
+                row["Qty"] if row["Qty"] is not None and row["Qty"] != 0 else None,
+                row["Weight"],
+            ),
+        )
+        conn.commit()
 
-    print("Added Item")
+        cursor.execute(
+            """UPDATE project 
+                SET item_count = (SELECT COUNT(*) FROM project_item WHERE project_id = ?)
+                WHERE id = ?
+            """,
+            (
+                project_id,
+                project_id,
+            ),
+        )
+
+    except Exception as err:
+        if retries > 0:
+            time.sleep(1)
+            return insert_project_item(conn, project_id, row, retries - 1)
+        else:
+            print(f"Failed to insert a project item! ({err})", row)
+            raise err
+
     return True
 
 
@@ -81,7 +103,7 @@ def update_project_item_qty(conn: sqlite3.Connection, id: int, qty: int | None) 
     sql = """
     UPDATE project_item SET        
         qty = ?
-        WHERE id = ?
+    WHERE id = ?
     """
 
     cursor.execute(

@@ -22,15 +22,14 @@ def __check_image(url: str, retries_left: int = 3) -> str:
     except HTTPError as http_err:
         if retries_left > 0:
             print(f"HTTP error occurred: {http_err}, retrying... ({retries_left} retries left)")
-            time.sleep(3)  # Wait before retrying
+            time.sleep(1)  # Wait before retrying
             return __check_image(url, retries_left - 1)
         else:
-            print("Max retries reached.")
             return ""
     except Exception as err:
         if retries_left > 0:
             print(f"HTTP error occurred: {err}, retrying... ({retries_left} retries left)")
-            time.sleep(3)  # Wait before retrying
+            time.sleep(1)  # Wait before retrying
             return __check_image(url, retries_left - 1)
         else:
             print(f"Other error occurred: {err}")

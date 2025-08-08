@@ -30,7 +30,9 @@ def create_tables(conn: sqlite3.Connection) -> None:
         """CREATE TABLE IF NOT EXISTS project (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name,
-            status
+            status,
+            item_count,
+            total_count
         )
         """
     )
@@ -50,7 +52,8 @@ def create_tables(conn: sqlite3.Connection) -> None:
             color_category,
             image,
             qty,
-            weight
+            weight,
+            UNIQUE(project_id, bl_item_no, element_id, bl_color_id)
         )
         """
     )
