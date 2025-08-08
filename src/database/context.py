@@ -25,21 +25,21 @@ def close(conn: sqlite3.Connection) -> None:
 def create_tables(conn: sqlite3.Connection) -> None:
     """Create necessary tables in the SQLite database."""
     cursor = conn.cursor()
+
     cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS version (
+        """CREATE TABLE IF NOT EXISTS project (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name
+            name,
+            status
         )
         """
     )
     conn.commit()
-
+    
     cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS project (
+        """CREATE TABLE IF NOT EXISTS project_item (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name,
+            project_id,
             bl_item_no,
             element_id,
             ldraw_id,
@@ -57,8 +57,7 @@ def create_tables(conn: sqlite3.Connection) -> None:
     conn.commit()
 
     cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS owned (
+        """CREATE TABLE IF NOT EXISTS owned (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             part,
             color,
@@ -68,6 +67,7 @@ def create_tables(conn: sqlite3.Connection) -> None:
         """
     )
     conn.commit()
+
     print("Tables created successfully.")
 
 

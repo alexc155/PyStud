@@ -5,7 +5,10 @@
 / Replace editable grid with aggrid
 / Show normal images instead of data ones
 
-Add Empty Owned List option
-Add calculated field for 'Buy'
+/ Add Empty Owned List option
 Split Project and items tables and have import status
+Filter list of colours in modal
+Add feedback and waits for long running operations
+Add project items in parallel
+Add calculated field for 'Buy'
 Export Buy list

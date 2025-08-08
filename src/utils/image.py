@@ -36,7 +36,6 @@ def __check_image(url: str, retries_left: int = 3) -> str:
             print(f"Other error occurred: {err}")
             return ""
     else:
-        print("Success!")
         return url
 
 

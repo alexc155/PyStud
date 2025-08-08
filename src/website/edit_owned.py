@@ -2,7 +2,7 @@ import sqlite3
 
 from nicegui import app, ui
 
-from database.tables import owned_table
+from database.tables.owned_table import delete_owned, get_owned, update_colour, update_owned
 from utils.colours import build_colour_block, get_colours
 from utils.parts import get_parts
 
@@ -22,11 +22,6 @@ async def edit_owned(db: sqlite3.Connection) -> None:
 
         return owned
 
-    def __update_colour(rows, colourId) -> None:
-        for row in rows:
-            owned_table.update_colour(db, row["id"], colourId)
-        edit_owned.refresh(db)
-
     async def __delete() -> None:
         with ui.dialog() as confirm_dialog, ui.card():
             ui.label("Are you sure?")
@@ -39,16 +34,21 @@ async def edit_owned(db: sqlite3.Connection) -> None:
             result = await confirm_dialog
             if result == "Yes":
                 for row in rows:
-                    owned_table.delete_owned(db, row["id"])
+                    delete_owned(db, row["id"])
                 edit_owned.refresh(db)
         else:
             ui.notify("No rows selected.")
 
     ui.label("Owned")
-    owned_items = __format_owned(owned_table.get_owned(db))
+    owned_items = __format_owned(get_owned(db))
 
-    def handle_cell_value_change(e):
-        ui.notify(f"Updated row to: {e.args['data']}")
+    def __update_quantity(event):
+        id = event.args["data"]["id"]
+        owned = event.args["data"]["quantity"]
+        part = event.args["data"]["part"]
+        colour = event.args["data"]["color"]
+        delete_owned(conn=db, id=id)
+        update_owned(conn=db, part=part, colour=colour, owned=owned)
 
     grid = (
         ui.aggrid(
@@ -65,27 +65,49 @@ async def edit_owned(db: sqlite3.Connection) -> None:
                 ":getRowHeight": "params => 50",
             },
             html_columns=[1, 3],
+            theme="balham-dark" if app.storage.user["dark_mode"] else "balham",
         )
-        .on("cellValueChanged", handle_cell_value_change)
+        .on("cellValueChanged", __update_quantity)
         .classes("w-full")
     )
 
-    grid.classes(
-        add="ag-theme-balham-dark" if app.storage.user["dark_mode"] else "ag-theme-balham", remove="ag-theme-balham ag-theme-balham-dark"
-    )
-
     async def __update_colours_dialog():
+        def __filter_colours(colours: list[dict], colour_filter: str) -> list[dict]:
+            if colour_filter == "":
+                return colours
+
+            return [x for x in colours if colour_filter.lower() in x["name"].lower()]
+
+        def __update_colour(rows, colourId) -> None:
+            for row in rows:
+                update_colour(db, row["id"], colourId)
+            edit_owned.refresh(db)
+
+        def __build_colour_table(colour_table: ui.row, rows: list[dict], colour_filter: str):
+            colour_table.clear()
+            filtered_colours = __filter_colours(all_colours, colour_filter)
+            with colour_table:
+                for colour in filtered_colours:
+                    with ui.card().style("width: 300px"):
+                        ui.html(build_colour_block(colour)).style(add="cursor: pointer").on(
+                            "click", lambda colour_id=colour["id"]: __update_colour(rows, colour_id)
+                        )
+
         rows = await grid.get_selected_rows()
         if rows:
             with ui.dialog().classes(add="w-full") as dialog:
+                with ui.row().classes("w-full").style("background-color: #333333; padding-top: 20px"):
+                    ui.input(
+                        label="Filter",
+                        placeholder="Enter a colour name",
+                        on_change=lambda e: __build_colour_table(colour_table, rows, e.value),
+                    ).style("padding: 0 0 20px 20px")
                 with (
-                    ui.row().classes("w-full h-[80vh] overflow-scroll justify-center").style("background-color: #333333; padding-top: 20px")
+                    ui.row()
+                    .classes("w-full h-[80vh] overflow-scroll justify-center")
+                    .style("background-color: #333333; padding: 20px 0 20px 0") as colour_table
                 ):
-                    for colour in all_colours:
-                        with ui.card().style("width: 300px"):
-                            ui.html(build_colour_block(colour)).style(add="cursor: pointer").on(
-                                "click", lambda colour_id=colour["id"]: __update_colour(rows, colour_id)
-                            )
+                    __build_colour_table(colour_table, rows, "")
 
                 ui.button("Close", on_click=dialog.close)
 
