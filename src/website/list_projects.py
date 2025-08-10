@@ -2,6 +2,7 @@ import sqlite3
 
 from nicegui import app, events, ui
 
+from database.tables.project_item_table import get_to_buy
 from database.tables.project_table import delete_project, get_projects
 from website.edit_project_list import edit_project_list
 
@@ -18,6 +19,8 @@ def list_projects(db: sqlite3.Connection, tabs: ui.tabs):
         __refresh_projects.refresh()
 
     def __export_to_buy(_: events.ClickEventArguments, project: dict) -> None:
+        to_buy = get_to_buy(db, int(project["id"]))
+        ui.download.content(to_buy, "to-buy.csv")
         ui.notify(f"Exported project {project['name']}")
 
     @ui.refreshable

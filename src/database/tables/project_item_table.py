@@ -1,3 +1,5 @@
+import csv
+import io
 import sqlite3
 import time
 
@@ -12,8 +14,7 @@ def insert_project_item(conn: sqlite3.Connection, project_id: int, row: dict, re
     try:
         image = get_image(row["BLItemNo"], row["LDrawColorId"])
 
-        sql = """
-        INSERT OR IGNORE INTO project_item (
+        sql = """INSERT OR IGNORE INTO project_item (
             project_id,
             bl_item_no,
             element_id,
@@ -73,8 +74,7 @@ def get_project_items(conn: sqlite3.Connection, project_id: int) -> list[dict]:
     """Get project_item data."""
     cursor = conn.cursor()
     cursor.execute(
-        """
-        SELECT 
+        """SELECT 
             project_item.id, 
             project_item.color_name,
             project_item.bl_item_no,
@@ -100,8 +100,7 @@ def get_project_items(conn: sqlite3.Connection, project_id: int) -> list[dict]:
 def update_project_item_qty(conn: sqlite3.Connection, id: int, qty: int | None) -> bool:
     """Update a project item."""
     cursor = conn.cursor()
-    sql = """
-    UPDATE project_item SET        
+    sql = """UPDATE project_item SET        
         qty = ?
     WHERE id = ?
     """
@@ -115,6 +114,37 @@ def update_project_item_qty(conn: sqlite3.Connection, id: int, qty: int | None) 
     )
     conn.commit()
     return cursor.rowcount > 0
+
+
+def get_to_buy(conn: sqlite3.Connection, project_id: int) -> str:
+    cursor = conn.cursor()
+    cursor.execute(
+        """SELECT 
+            project_item.bl_item_no AS BLItemNo,
+            project_item.element_id AS ElementId,
+            project_item.ldraw_id AS LdrawId,
+            project_item.part_name AS PartName, 
+            project_item.bl_color_id AS BLColorId,
+            project_item.ldraw_color_id AS LDrawColorId,
+            project_item.color_name AS ColorName,
+            project_item.color_category AS ColorCategory,
+            project_item.qty - IFNULL(owned.quantity, 0) AS Qty,
+            project_item.weight AS Weight
+        FROM project_item 
+        LEFT JOIN owned ON project_item.bl_item_no = owned.part AND project_item.ldraw_color_id = owned.color
+        WHERE project_item.project_id = ?
+            AND project_item.qty - IFNULL(owned.quantity, 0) > 0
+        """,
+        (project_id,),
+    )
+    columns = [column[0] for column in cursor.description]
+    data = [dict(zip(columns, row, strict=False)) for row in cursor.fetchall()]
+
+    csv_response = io.StringIO()
+    writer = csv.DictWriter(csv_response, fieldnames=columns)
+    writer.writeheader()
+    writer.writerows(data)
+    return csv_response.getvalue()
 
 
 __all__ = ["insert_project_item", "get_project_items", "update_project_item_qty"]
