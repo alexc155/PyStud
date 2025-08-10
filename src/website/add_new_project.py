@@ -24,10 +24,7 @@ def import_project(db: sqlite3.Connection, tabs: ui.tabs) -> None:
 
     ui.upload(on_upload=__handle_upload).props("accept=.csv").classes("max-w-full")
 
-    ui.button(
-        "Add Project",
-        on_click=lambda: __add_project(db, project_name.value, project_file.value, tabs),
-    ).props("primary")
+    ui.button("Add Project").on_click(lambda: __add_project(db, project_name.value, project_file.value, tabs)).props("primary")
 
 
 __all__ = ["import_project"]

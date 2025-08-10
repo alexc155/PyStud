@@ -32,6 +32,9 @@ async def edit_project_list(db: sqlite3.Connection, project_id: int, project_nam
                 (x for x in all_colours if int(x["id"]) == int(project_item["ldraw_color_id"])), {"name": "None", "rgb": "CCCCCC"}
             )
             project_item["colorName"] = build_colour_block(colour)
+            project_item["buy"] = int(project_item["qty"]) - (int(project_item["owned"]) if project_item["owned"] is not None else 0)
+            if int(project_item["buy"]) <= 0:
+                project_item["buy"] = None
 
         return project_items
 
@@ -77,6 +80,14 @@ async def edit_project_list(db: sqlite3.Connection, project_id: int, project_nam
             "headerName": "Owned",
             "editable": True,
             "type": "number",
+            "flex": 1,
+        },
+        {
+            "field": "buy",
+            "headerName": "To Buy",
+            "editable": False,
+            "type": "number",
+            "filter": "agNumberColumnFilter",
             "flex": 1,
         },
     ]

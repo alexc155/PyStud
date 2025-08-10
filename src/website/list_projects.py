@@ -1,24 +1,27 @@
 import sqlite3
 
-from nicegui import app, ui
+from nicegui import app, events, ui
 
 from database.tables.project_table import delete_project, get_projects
 from website.edit_project_list import edit_project_list
 
 
 def list_projects(db: sqlite3.Connection, tabs: ui.tabs):
-    def __select_project(db: sqlite3.Connection, project: dict, tabs: ui.tabs):
+    def __select_project(_: events.ClickEventArguments, project: dict, tabs: ui.tabs):
         app.storage.general["project"] = {"id": project["id"], "name": project["name"]}
-        edit_project_list.refresh(db, project["id"], project["name"])
+        edit_project_list.refresh(project["id"], project["name"])
         tabs.value = "Project List"
 
-    def __delete(db: sqlite3.Connection, project: dict) -> None:
+    def __delete(_: events.ClickEventArguments, project: dict) -> None:
         delete_project(db, int(project["id"]))
         ui.notify(f"Deleted project {project['name']}")
         __refresh_projects.refresh()
 
+    def __export_to_buy(_: events.ClickEventArguments, project: dict) -> None:
+        ui.notify(f"Exported project {project['name']}")
+
     @ui.refreshable
-    def __refresh_projects(db: sqlite3.Connection, tabs: ui.tabs):
+    def __refresh_projects(tabs: ui.tabs):
         """Refresh the list of projects."""
 
         if tabs.value != "All Projects":
@@ -34,26 +37,13 @@ def list_projects(db: sqlite3.Connection, tabs: ui.tabs):
                     with ui.row().classes("justify-between w-full"):
                         ui.label(project["name"])
                     with ui.row():
-                        ui.button(
-                            "edit",
-                            on_click=lambda project=project: __select_project(
-                                db,
-                                project,  # type: ignore
-                                tabs,
-                            ),
-                        )
-                        ui.button(
-                            "delete",
-                            on_click=lambda project=project: __delete(
-                                db,
-                                project,  # type: ignore
-                            ),
-                            color="red",
-                        )
+                        ui.button("edit").on_click(lambda e, project=project: __select_project(e, project, tabs))
+                        ui.button("delete", color="red").on_click(lambda e, project=project: __delete(e, project))
+                        ui.button("export to buy", color="green").on_click(lambda e, project=project: __export_to_buy(e, project))
 
     ui.label("All Projects")
 
-    ui.timer(2.0, lambda: __refresh_projects(db, tabs))
+    ui.timer(2.0, lambda: __refresh_projects(tabs))
 
     project_list = ui.row()
 

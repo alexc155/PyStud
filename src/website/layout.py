@@ -27,7 +27,7 @@ async def layout(db: sqlite3.Connection):
             case _:
                 return
 
-    def __dark_mode_change(e: events.ValueChangeEventArguments):
+    def __dark_mode_change(_: events.ValueChangeEventArguments):
         edit_project_list.refresh(db, project["id"], project["name"])
         edit_project_cards.refresh(db, project["id"], project["name"])
         edit_owned.refresh(db)

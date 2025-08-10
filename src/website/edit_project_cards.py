@@ -21,7 +21,7 @@ async def edit_project_cards(db: sqlite3.Connection, project_id: int, project_na
         [item for item in project_items if item["id"] == id][0]["owned"] = val
 
     @ui.refreshable
-    def __show_cards(card_items) -> None:
+    def __show_cards(card_items: list[dict]) -> None:
         results.clear()
         with results:
             for card_item in card_items:
@@ -72,7 +72,7 @@ async def edit_project_cards(db: sqlite3.Connection, project_id: int, project_na
     with ui.row(wrap=False):
         color_filter = ui.input("Color", value="").props("clearable")
         part_filter = ui.input("Part Name", value="").props("clearable")
-        ui.button("Refresh", on_click=__filter_items)
+        ui.button("Refresh").on_click(__filter_items)
 
     project_items = get_project_items(db, project_id)
 

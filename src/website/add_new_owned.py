@@ -24,10 +24,7 @@ def import_owned(db: sqlite3.Connection, tabs: ui.tabs) -> None:
 
     ui.upload(on_upload=__handle_upload).props("accept=.csv").classes("max-w-full")
 
-    ui.button(
-        "Add owned list",
-        on_click=lambda: __add_owned(db, owned_file.value, tabs),
-    ).props("primary")
+    ui.button("Add owned list").on_click(lambda: __add_owned(db, owned_file.value, tabs)).props("primary")
 
 
 __all__ = ["import_owned"]

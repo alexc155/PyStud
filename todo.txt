@@ -8,9 +8,10 @@
 / Add Empty Owned List option
 / Split Project and items tables and have import status
 / Filter list of colours in modal
-Fix counts when updating
-Make tabs and others global
-Add feedback and waits for long running operations
+/ Fix counts when updating
+/ Make tabs and others global
+/ Add feedback and waits for long running operations
 / Add project items in parallel
-Add calculated field for 'Buy'
+/ Add calculated field for 'Buy'
 Export Buy list
+Package app

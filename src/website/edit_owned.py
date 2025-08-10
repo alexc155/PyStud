@@ -1,6 +1,6 @@
 import sqlite3
 
-from nicegui import app, ui
+from nicegui import app, events, ui
 
 from database.tables.owned_table import delete_owned, get_owned, update_colour, update_owned
 from utils.colours import build_colour_block, get_colours
@@ -26,8 +26,8 @@ async def edit_owned(db: sqlite3.Connection) -> None:
         with ui.dialog() as confirm_dialog, ui.card():
             ui.label("Are you sure?")
             with ui.row():
-                ui.button("Yes", on_click=lambda: confirm_dialog.submit("Yes"))
-                ui.button("No", on_click=lambda: confirm_dialog.submit("No"))
+                ui.button("Yes").on_click(lambda: confirm_dialog.submit("Yes"))
+                ui.button("No").on_click(lambda: confirm_dialog.submit("No"))
 
         rows = await grid.get_selected_rows()
         if rows:
@@ -42,7 +42,7 @@ async def edit_owned(db: sqlite3.Connection) -> None:
     ui.label("Owned")
     owned_items = __format_owned(get_owned(db))
 
-    def __update_quantity(event):
+    def __update_quantity(event: events.GenericEventArguments) -> None:
         id = event.args["data"]["id"]
         owned: int = event.args["data"]["quantity"]
         part = event.args["data"]["part"]
@@ -120,15 +120,15 @@ async def edit_owned(db: sqlite3.Connection) -> None:
                 ):
                     __build_colour_table(colour_table, rows, "")
 
-                ui.button("Close", on_click=dialog.close)
+                ui.button("Close").on_click(dialog.close)
 
             dialog.open()
         else:
             ui.notify("No rows selected.")
 
-    ui.button("Select all", on_click=lambda: grid.run_grid_method("selectAll"))
-    ui.button("Update colours", on_click=__update_colours_dialog)
-    ui.button("Delete selected", on_click=__delete)
+    ui.button("Select all").on_click(lambda: grid.run_grid_method("selectAll"))
+    ui.button("Update colours").on_click(__update_colours_dialog)
+    ui.button("Delete selected").on_click(__delete)
 
     ui.add_css(".q-dialog__inner--minimized > div { max-width: none !important }")
 
