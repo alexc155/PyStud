@@ -4,35 +4,32 @@ from nicegui import ui
 
 from database.tables.owned_table import update_owned
 from database.tables.project_item_table import get_project_items, update_project_item_qty
-from website.edit_project_list import edit_project_list
 
 
 @ui.refreshable
-async def edit_project_cards(db: sqlite3.Connection, project_id: int, project_name: str):
+async def edit_project_cards(db: sqlite3.Connection, project_id: int, project_name: str) -> None:
     if project_name == "none":
         ui.label("No project selected.")
         return
 
-    def __update_project_item_qty(val: int, id: int):
+    def __update_project_item_qty(val: int, id: int) -> None:
         update_project_item_qty(db, id, val)
         [item for item in project_items if item["id"] == id][0]["qty"] = val
-        edit_project_list.refresh(db, project_id, project_name)
 
-    def __update_project_item_owned(val: int, id: int, part: str, colour: int):
+    def __update_project_item_owned(val: int, id: int, part: str, colour: int) -> None:
         update_owned(conn=db, part=part, colour=colour, owned=val)
         [item for item in project_items if item["id"] == id][0]["owned"] = val
-        edit_project_list.refresh(db, project_id, project_name)
 
     @ui.refreshable
-    def __show_cards(card_items):
+    def __show_cards(card_items) -> None:
         results.clear()
         with results:
             for card_item in card_items:
                 card_id = card_item["id"]
                 part = card_item["bl_item_no"]
-                colour = card_item["ldraw_color_id"]
-                qty_input = card_item["qty"] if card_item["qty"] else "0"
-                owned_input = card_item["owned"] if card_item["owned"] else "0"
+                colour: int = int(card_item["ldraw_color_id"])
+                qty_input: int = int(card_item["qty"]) if card_item["qty"] else 0
+                owned_input: int = int(card_item["owned"]) if card_item["owned"] else 0
                 with (
                     ui.card().style("width: 310px"),
                     ui.grid(rows=3, columns=2).classes("gap-0"),
@@ -43,7 +40,7 @@ async def edit_project_cards(db: sqlite3.Connection, project_id: int, project_na
                     ui.html(card_item["image_mid"]).classes("row-span-2 col-span-1").style("min-width: 150px")
 
                     with ui.row(wrap=False).classes("row-span-1 col-span-1"):
-                        ui.input("Quantity", value=qty_input).props("rounded outlined dense type=number").style(
+                        ui.input("Quantity", value=str(qty_input)).props("rounded outlined dense type=number").style(
                             "max-width: 100px;"
                         ).on_value_change(
                             lambda e, card_id=card_id: __update_project_item_qty(
@@ -52,7 +49,7 @@ async def edit_project_cards(db: sqlite3.Connection, project_id: int, project_na
                             )
                         )
                     with ui.row(wrap=False).classes("row-span-1 col-span-1"):
-                        ui.input("Owned", value=owned_input).props("rounded outlined dense type=number").style(
+                        ui.input("Owned", value=str(owned_input)).props("rounded outlined dense type=number").style(
                             "max-width: 100px;"
                         ).on_value_change(
                             lambda e, card_id=card_id, part=part, colour=colour: __update_project_item_owned(
@@ -60,7 +57,7 @@ async def edit_project_cards(db: sqlite3.Connection, project_id: int, project_na
                             )
                         )
 
-    def __filter_items():
+    def __filter_items() -> None:
         """Filter items based on color and part name."""
         filtered_items = [
             item

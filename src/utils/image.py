@@ -11,6 +11,8 @@ all_elements.reverse()
 
 
 def __check_image(url: str, retries_left: int = 3) -> str:
+    # print(url)
+    # return url
     try:
         response = requests.get(
             url=url,
@@ -47,7 +49,7 @@ def __strip_suffix(part: str) -> str:
     return re.sub(r"(.*\d)([abc])$", strip_abc, part)
 
 
-def get_image(part_num: str, color_id: str, retries_left: int = 3) -> str:
+def get_image(part_num: str, color_id: int, retries_left: int = 3) -> str:
     try:
         response = requests.get(
             url="https://cdn.rebrickable.com/media/thumbs/nil.png/85x85p.png",
@@ -65,7 +67,7 @@ def get_image(part_num: str, color_id: str, retries_left: int = 3) -> str:
         else:
             return "http://localhost:8080/Question-Mark-Block.png"
     else:
-        elements = [x for x in all_elements if __strip_suffix(x["part_num"]) == __strip_suffix(part_num) and x["color_id"] == color_id]
+        elements = [x for x in all_elements if __strip_suffix(x["part_num"]) == __strip_suffix(part_num) and int(x["color_id"]) == color_id]
 
         elements.extend(
             [
@@ -73,12 +75,12 @@ def get_image(part_num: str, color_id: str, retries_left: int = 3) -> str:
                 for x in all_elements
                 if __strip_suffix(x["design_id"]) == __strip_suffix(part_num)
                 and __strip_suffix(x["part_num"]) != __strip_suffix(part_num)
-                and x["color_id"] == color_id
+                and int(x["color_id"]) == color_id
             ]
         )
 
         elements.extend(
-            [x for x in all_elements if __strip_suffix(x["part_num"]) == __strip_suffix(part_num) and x["color_id"] != color_id]
+            [x for x in all_elements if __strip_suffix(x["part_num"]) == __strip_suffix(part_num) and int(x["color_id"]) != color_id]
         )
 
         elements.extend(
@@ -87,7 +89,7 @@ def get_image(part_num: str, color_id: str, retries_left: int = 3) -> str:
                 for x in all_elements
                 if __strip_suffix(x["part_num"]) == __strip_suffix(part_num)
                 and __strip_suffix(x["part_num"]) != __strip_suffix(part_num)
-                and x["color_id"] != color_id
+                and int(x["color_id"]) != color_id
             ]
         )
 

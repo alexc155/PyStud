@@ -4,7 +4,7 @@ import time
 from utils.image import get_image
 
 
-def insert_project_item(conn: sqlite3.Connection, project_id: int, row: dict, retries=10) -> bool:
+def insert_project_item(conn: sqlite3.Connection, project_id: int, row: dict, retries: int = 10) -> bool:
     """Insert project data into the SQLite database."""
 
     cursor = conn.cursor()
@@ -41,7 +41,7 @@ def insert_project_item(conn: sqlite3.Connection, project_id: int, row: dict, re
                 row["ColorName"],
                 row["ColorCategory"],
                 image,
-                row["Qty"] if row["Qty"] is not None and row["Qty"] != 0 else None,
+                int(row["Qty"]) if row["Qty"] is not None and int(row["Qty"]) != 0 else None,
                 row["Weight"],
             ),
         )
@@ -109,7 +109,7 @@ def update_project_item_qty(conn: sqlite3.Connection, id: int, qty: int | None) 
     cursor.execute(
         sql,
         (
-            qty if qty is not None and int(qty) > 0 else None,
+            qty if qty is not None and qty > 0 else None,
             id,
         ),
     )

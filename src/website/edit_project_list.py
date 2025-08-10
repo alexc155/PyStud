@@ -8,27 +8,29 @@ from utils.colours import build_colour_block, get_colours
 
 
 @ui.refreshable
-async def edit_project_list(db: sqlite3.Connection, project_id: int, project_name: str):
+async def edit_project_list(db: sqlite3.Connection, project_id: int, project_name: str) -> None:
     if project_name == "none":
         ui.label("No project selected.")
         return
 
-    def __on_cell_value_changed(event):
+    def __on_cell_value_changed(event) -> None:
         """Handle cell value changes in the grid."""
         data_id = event.args["data"]["id"]
-        qty = event.args["data"]["qty"]
+        qty: int = int(event.args["data"]["qty"])
         update_project_item_qty(conn=db, id=data_id, qty=qty)
 
-        owned = event.args["data"]["owned"]
+        owned: int = int(event.args["data"]["owned"]) if event.args["data"]["owned"] else 0
         part = event.args["data"]["bl_item_no"]
-        colour = event.args["data"]["ldraw_color_id"]
+        colour: int = int(event.args["data"]["ldraw_color_id"])
         update_owned(conn=db, part=part, colour=colour, owned=owned)
 
     all_colours = get_colours()
 
     def __format_project_items(project_items: list[dict]) -> list[dict]:
         for project_item in project_items:
-            colour = next((x for x in all_colours if x["id"] == project_item["ldraw_color_id"]), {"name": "None", "rgb": "CCCCCC"})
+            colour = next(
+                (x for x in all_colours if int(x["id"]) == int(project_item["ldraw_color_id"])), {"name": "None", "rgb": "CCCCCC"}
+            )
             project_item["colorName"] = build_colour_block(colour)
 
         return project_items

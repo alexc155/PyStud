@@ -14,7 +14,7 @@ async def edit_owned(db: sqlite3.Connection) -> None:
 
     def __format_owned(owned: list[dict]) -> list[dict]:
         for owned_item in owned:
-            colour = next((x for x in all_colours if x["id"] == owned_item["color"]), {"name": "None", "rgb": "CCCCCC"})
+            colour = next((x for x in all_colours if int(x["id"]) == int(owned_item["color"])), {"name": "None", "rgb": "CCCCCC"})
             owned_item["colorName"] = build_colour_block(colour)
 
             part = next((x for x in all_parts if x["part_num"] == owned_item["part"]), {"name": "Unknown"})
@@ -44,19 +44,21 @@ async def edit_owned(db: sqlite3.Connection) -> None:
 
     def __update_quantity(event):
         id = event.args["data"]["id"]
-        owned = event.args["data"]["quantity"]
+        owned: int = event.args["data"]["quantity"]
         part = event.args["data"]["part"]
-        colour = event.args["data"]["color"]
+        colour: int = event.args["data"]["color"]
         delete_owned(conn=db, id=id)
         update_owned(conn=db, part=part, colour=colour, owned=owned)
+
+    ui.add_css(".ag-root-wrapper-body.ag-layout-normal { height: 100% !important }")
 
     grid = (
         ui.aggrid(
             {
                 "columnDefs": [
                     {"headerName": "Id", "field": "id", "checkboxSelection": True},
-                    {"headerName": "Color", "field": "colorName", "filter": "agTextColumnFilter", "floatingFilter": True},
-                    {"headerName": "Part", "field": "partName", "filter": "agTextColumnFilter", "floatingFilter": True},
+                    {"headerName": "Color", "field": "colorName", "filter": "agTextColumnFilter"},
+                    {"headerName": "Part", "field": "partName", "filter": "agTextColumnFilter"},
                     {"headerName": "Image", "field": "image"},
                     {"headerName": "Quantity", "field": "quantity", "editable": True},
                 ],
@@ -68,7 +70,8 @@ async def edit_owned(db: sqlite3.Connection) -> None:
             theme="balham-dark" if app.storage.user["dark_mode"] else "balham",
         )
         .on("cellValueChanged", __update_quantity)
-        .classes("w-full")
+        .classes(f"w-full overflow-auto {'ag-theme-balham-dark' if app.storage.user['dark_mode'] else 'ag-theme-balham'}")
+        .style(add="height: 100%")
     )
 
     async def __update_colours_dialog():
@@ -78,25 +81,31 @@ async def edit_owned(db: sqlite3.Connection) -> None:
 
             return [x for x in colours if colour_filter.lower() in x["name"].lower()]
 
-        def __update_colour(rows, colourId) -> None:
+        def __update_colour(rows: list[dict], colourId: int) -> None:
             for row in rows:
                 update_colour(db, row["id"], colourId)
             edit_owned.refresh(db)
 
-        def __build_colour_table(colour_table: ui.row, rows: list[dict], colour_filter: str):
+        def __build_colour_table(colour_table: ui.row, rows: list[dict], colour_filter: str) -> None:
             colour_table.clear()
             filtered_colours = __filter_colours(all_colours, colour_filter)
             with colour_table:
                 for colour in filtered_colours:
                     with ui.card().style("width: 300px"):
                         ui.html(build_colour_block(colour)).style(add="cursor: pointer").on(
-                            "click", lambda colour_id=colour["id"]: __update_colour(rows, colour_id)
+                            "click",
+                            lambda colour_id=int(colour["id"]): __update_colour(rows, colour_id),  # type: ignore
                         )
 
         rows = await grid.get_selected_rows()
         if rows:
-            with ui.dialog().classes(add="w-full") as dialog:
-                with ui.row().classes("w-full").style("background-color: #333333; padding-top: 20px"):
+            with (
+                ui.dialog().classes(add="w-full") as dialog,
+                ui.row()
+                .classes("justify-center")
+                .style(f"background-color: {'#333333' if app.storage.user['dark_mode'] else '#FFFFFF'}; padding-bottom: 20px;"),
+            ):
+                with ui.row().classes("w-full").style(f"background-color: {'#333333' if app.storage.user['dark_mode'] else '#FFFFFF'};"):
                     ui.input(
                         label="Filter",
                         placeholder="Enter a colour name",
@@ -105,7 +114,9 @@ async def edit_owned(db: sqlite3.Connection) -> None:
                 with (
                     ui.row()
                     .classes("w-full h-[80vh] overflow-scroll justify-center")
-                    .style("background-color: #333333; padding: 20px 0 20px 0") as colour_table
+                    .style(
+                        f"background-color: {'#333333' if app.storage.user['dark_mode'] else '#FFFFFF'}; padding: 20px 0 20px 0"
+                    ) as colour_table
                 ):
                     __build_colour_table(colour_table, rows, "")
 

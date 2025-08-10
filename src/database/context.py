@@ -31,8 +31,9 @@ def create_tables(conn: sqlite3.Connection) -> None:
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name,
             status,
-            item_count,
-            total_count
+            item_count INTEGER,
+            total_count INTEGER,
+            UNIQUE(name)
         )
         """
     )
@@ -41,17 +42,17 @@ def create_tables(conn: sqlite3.Connection) -> None:
     cursor.execute(
         """CREATE TABLE IF NOT EXISTS project_item (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            project_id,
+            project_id INTEGER,
             bl_item_no,
             element_id,
             ldraw_id,
             part_name,
-            bl_color_id,
-            ldraw_color_id,
+            bl_color_id INTEGER,
+            ldraw_color_id INTEGER,
             color_name,
             color_category,
             image,
-            qty,
+            qty INTEGER,
             weight,
             UNIQUE(project_id, bl_item_no, element_id, bl_color_id)
         )
@@ -63,9 +64,10 @@ def create_tables(conn: sqlite3.Connection) -> None:
         """CREATE TABLE IF NOT EXISTS owned (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             part,
-            color,
+            color INTEGER,
             image,
-            quantity
+            quantity INTEGER,
+            UNIQUE(part, color)
         )
         """
     )

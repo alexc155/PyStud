@@ -1,22 +1,19 @@
 import sqlite3
 
-from nicegui import ui
+from nicegui import app, ui
 
 from database.tables.project_table import delete_project, get_projects
-from website.edit_project_cards import edit_project_cards
 from website.edit_project_list import edit_project_list
 
 
 def list_projects(db: sqlite3.Connection, tabs: ui.tabs):
     def __select_project(db: sqlite3.Connection, project: dict, tabs: ui.tabs):
+        app.storage.general["project"] = {"id": project["id"], "name": project["name"]}
         edit_project_list.refresh(db, project["id"], project["name"])
-        edit_project_cards.refresh(db, project["id"], project["name"])
         tabs.value = "Project List"
 
     def __delete(db: sqlite3.Connection, project: dict) -> None:
         delete_project(db, int(project["id"]))
-        edit_project_list.refresh(db, 0, "none")
-        edit_project_cards.refresh(db, 0, "none")
         ui.notify(f"Deleted project {project['name']}")
         __refresh_projects.refresh()
 
@@ -57,7 +54,6 @@ def list_projects(db: sqlite3.Connection, tabs: ui.tabs):
     ui.label("All Projects")
 
     ui.timer(2.0, lambda: __refresh_projects(db, tabs))
-    ui.label("This is where you can see all projects.")
 
     project_list = ui.row()
 

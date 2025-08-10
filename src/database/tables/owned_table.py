@@ -4,7 +4,7 @@ import sqlite3
 from utils.image import get_image
 
 
-def __upsert(conn: sqlite3.Connection, cursor: sqlite3.Cursor, row: dict):
+def __upsert(conn: sqlite3.Connection, cursor: sqlite3.Cursor, row: dict, add_to_existing: bool) -> None:
     sqlExisting = """
             SELECT COUNT(*) AS count
             FROM owned
@@ -12,20 +12,20 @@ def __upsert(conn: sqlite3.Connection, cursor: sqlite3.Cursor, row: dict):
                 AND color = ?
                 """
 
-    cursor.execute(sqlExisting, (row["Part"], row["Color"]))
+    cursor.execute(sqlExisting, (row["Part"], int(row["Color"])))
     columns = [column[0] for column in cursor.description]
 
     if [dict(zip(columns, row, strict=False)) for row in cursor.fetchall()][0]["count"] > 0:
         # update
-        sql = """
+        sql = f"""
             UPDATE owned
-            SET quantity = quantity + ?
+            SET quantity = {"quantity + ?" if add_to_existing else "?"}
             WHERE part = ?
                 AND color = ?
             """
-        cursor.execute(sql, (row["Quantity"], row["Part"], row["Color"]))
+        cursor.execute(sql, (int(row["Quantity"]), row["Part"], int(row["Color"])))
     else:
-        image = get_image(row["Part"], row["Color"])
+        image = get_image(row["Part"], int(row["Color"]))
 
         sql = """
                 INSERT INTO owned (
@@ -35,7 +35,7 @@ def __upsert(conn: sqlite3.Connection, cursor: sqlite3.Cursor, row: dict):
                     quantity
                 ) VALUES (?,?,?,?)
                 """
-        cursor.execute(sql, (row["Part"], row["Color"], image, row["Quantity"]))
+        cursor.execute(sql, (row["Part"], int(row["Color"]), image, int(row["Quantity"])))
 
     conn.commit()
 
@@ -45,7 +45,7 @@ def insert_owned(conn: sqlite3.Connection, owned_file: str) -> bool:
     cursor = conn.cursor()
 
     for row in csv.DictReader(owned_file.splitlines(), delimiter=","):
-        __upsert(conn, cursor, row)
+        __upsert(conn, cursor, row, True)
     return True
 
 
@@ -85,7 +85,7 @@ def delete_owned(conn: sqlite3.Connection, id: int) -> bool:
 def update_owned(conn: sqlite3.Connection, part: str, colour: int, owned: int | None) -> bool:
     cursor = conn.cursor()
 
-    __upsert(conn, cursor, {"Part": part, "Color": colour, "Quantity": owned})
+    __upsert(conn, cursor, {"Part": part, "Color": colour, "Quantity": owned}, False)
 
     return True
 
@@ -112,7 +112,7 @@ def update_colour(conn: sqlite3.Connection, id: int, colour: int) -> bool:
 
     row[0]["Color"] = colour
 
-    __upsert(conn, cursor, row[0])
+    __upsert(conn, cursor, row[0], True)
 
     return True
 

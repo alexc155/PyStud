@@ -6,7 +6,7 @@ from types import CoroutineType
 from database.tables.project_item_table import insert_project_item
 
 
-async def __insert_project_items(conn: sqlite3.Connection, project_items: list[str], cursor, project_id: int):
+async def __insert_project_items(conn: sqlite3.Connection, project_items: list[str], cursor, project_id: int) -> None:
     threads: list[CoroutineType] = list()
 
     for row in csv.DictReader(project_items, delimiter=","):

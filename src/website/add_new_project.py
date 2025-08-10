@@ -5,12 +5,12 @@ from nicegui import events, ui
 from database.tables import project_table
 
 
-async def __add_project(db: sqlite3.Connection, project_name: str, project_file: str, tabs: ui.tabs):
+async def __add_project(db: sqlite3.Connection, project_name: str, project_file: str, tabs: ui.tabs) -> None:
     tabs.value = "All Projects"
     await project_table.insert_project(db, project_name, project_file)
 
 
-def import_project(db: sqlite3.Connection, tabs: ui.tabs):
+def import_project(db: sqlite3.Connection, tabs: ui.tabs) -> None:
     ui.label("Import Project")
     project_name = ui.input(label="Project Name", placeholder="Enter project name")
 
