@@ -1,4 +1,11 @@
-from nicegui import app, ui
+# macOS packaging support
+from multiprocessing import freeze_support  # noqa
+
+freeze_support()  # noqa
+
+# all your other imports and code
+
+from nicegui import app, native, ui
 
 from database import context
 from website.layout import layout
@@ -17,8 +24,5 @@ async def show():
     await layout(db)
 
 
-ui.run(storage_secret="vruHItTN49uChT")
-
-
-if __name__ == "__main__":
-    print('Please start the app with the "python3 ./src/website/main.py"')
+ui.run(reload=False, port=native.find_open_port(), storage_secret="vruHItTN49uChT")
+# ui.run(reload=True, port=native.find_open_port(), storage_secret="vruHItTN49uChT")

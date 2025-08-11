@@ -3,16 +3,18 @@ import io
 import sqlite3
 import time
 
+from nicegui import app
+
 from utils.image import get_image
 
 
-def insert_project_item(conn: sqlite3.Connection, project_id: int, row: dict, retries: int = 10) -> bool:
+def insert_project_item(conn: sqlite3.Connection, project_id: int, row: dict, internet: bool, retries: int = 10) -> bool:
     """Insert project data into the SQLite database."""
 
     cursor = conn.cursor()
 
     try:
-        image = get_image(row["BLItemNo"], row["LDrawColorId"])
+        image = get_image(row["BLItemNo"], int(row["LDrawColorId"]), internet)
 
         sql = """INSERT OR IGNORE INTO project_item (
             project_id,
@@ -62,12 +64,31 @@ def insert_project_item(conn: sqlite3.Connection, project_id: int, row: dict, re
     except Exception as err:
         if retries > 0:
             time.sleep(1)
-            return insert_project_item(conn, project_id, row, retries - 1)
+            return insert_project_item(conn, project_id, row, internet, retries - 1)
         else:
             print(f"Failed to insert a project item! ({err})", row)
             raise err
 
     return True
+
+
+def update_broken_image(conn: sqlite3.Connection, project_item: dict) -> None:
+    if project_item["image"] != "":
+        return
+    else:
+        image = get_image(project_item["bl_item_no"], int(project_item["ldraw_color_id"]), True)
+        cursor = conn.cursor()
+        cursor.execute(
+            """UPDATE
+                project_item
+            SET
+                image = ?
+            WHERE id = ?
+            """,
+            (image, project_item["id"]),
+        )
+
+        project_item["image"] = image
 
 
 def get_project_items(conn: sqlite3.Connection, project_id: int) -> list[dict]:
@@ -82,8 +103,6 @@ def get_project_items(conn: sqlite3.Connection, project_id: int) -> list[dict]:
             project_item.bl_color_id,
             project_item.part_name, 
             project_item.image, 
-            concat('<img src="', project_item.image, '" style="height: 45px" />') AS image_sm, 
-            concat('<img src="', project_item.image, '" style="height: 80px" />') AS image_mid, 
             project_item.qty, 
             owned.quantity AS owned 
         FROM project_item 
@@ -94,7 +113,13 @@ def get_project_items(conn: sqlite3.Connection, project_id: int) -> list[dict]:
         (project_id,),
     )
     columns = [column[0] for column in cursor.description]
-    return [dict(zip(columns, row, strict=False)) for row in cursor.fetchall()]
+    project_items = [dict(zip(columns, row, strict=False)) for row in cursor.fetchall()]
+
+    if app.storage.general["internet"]:
+        for project_item in project_items:
+            update_broken_image(conn, project_item)
+
+    return project_items
 
 
 def update_project_item_qty(conn: sqlite3.Connection, id: int, qty: int | None) -> bool:

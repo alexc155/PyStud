@@ -1,0 +1,10 @@
+BLItemNo,ElementId,LdrawId,PartName,BLColorId,LDrawColorId,ColorName,ColorCategory,Qty,Weight
+11458,6057414,11458.dat,"Plate, Modified 1 x 2 with Pin Hole on Top",1,15,White,Solid Colors,2,0.47
+14719,6065824,14719.dat,Tile 2 x 2 Corner,86,71,Light Bluish Gray,Solid Colors,2,0.43
+18654,6177114,18654.dat,"Technic, Liftarm Thick 1 x 1 (Spacer)",1,15,White,Solid Colors,3,0.17
+18677,6232029,18677.dat,"Plate, Modified 1 x 2 with Pin Hole on Bottom",1,15,White,Solid Colors,1,0
+22388,6314487,22388.dat,Slope 45 1 x 1 x 2/3 Quadruple Convex Pyramid,1,15,White,Solid Colors,8,0
+2357,235701,2357.dat,Brick 2 x 2 Corner,1,15,White,Solid Colors,7,1.25
+2420,242001,2420.dat,Plate 2 x 2 Corner,1,15,White,Solid Colors,4,0.54
+2431,6332155,2431.dat,Tile 1 x 4,65,82,Metallic Gold,Metallic Colors,2,0
+2431,4211356,2431.dat,Tile 1 x 4,86,71,Light Bluish Gray,Solid Colors,8,0.54

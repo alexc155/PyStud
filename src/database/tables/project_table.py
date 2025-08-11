@@ -4,13 +4,16 @@ import sqlite3
 from types import CoroutineType
 
 from database.tables.project_item_table import insert_project_item
+from utils.internet import check_internet_connection
 
 
-async def __insert_project_items(conn: sqlite3.Connection, project_items: list[str], cursor, project_id: int) -> None:
+async def __insert_project_items(
+    conn: sqlite3.Connection, project_items: list[str], cursor: sqlite3.Cursor, project_id: int, internet: bool
+) -> None:
     threads: list[CoroutineType] = list()
 
     for row in csv.DictReader(project_items, delimiter=","):
-        thread = asyncio.to_thread(lambda row=row: insert_project_item(conn, project_id, row))
+        thread = asyncio.to_thread(lambda row=row: insert_project_item(conn, project_id, row, internet))
 
         threads.append(thread)
 
@@ -42,7 +45,7 @@ async def insert_project(conn: sqlite3.Connection, name: str, project_file: str)
         )
         VALUES (?,?,?,?)
         """,
-        (name, "Importing", 0, len(project_items)),
+        (name, "Importing", 0, len(project_items) - 1),
     )
 
     project_id = cursor.lastrowid
@@ -50,7 +53,9 @@ async def insert_project(conn: sqlite3.Connection, name: str, project_file: str)
     if project_id is None:
         raise ImportError()
 
-    await __insert_project_items(conn, project_items, cursor, project_id)
+    internet = check_internet_connection()
+
+    await __insert_project_items(conn, project_items, cursor, project_id, internet)
     return True
 
 

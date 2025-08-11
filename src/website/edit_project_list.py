@@ -31,7 +31,8 @@ async def edit_project_list(db: sqlite3.Connection, project_id: int, project_nam
             colour = next(
                 (x for x in all_colours if int(x["id"]) == int(project_item["ldraw_color_id"])), {"name": "None", "rgb": "CCCCCC"}
             )
-            project_item["colorName"] = build_colour_block(colour)
+            project_item["color_block"] = build_colour_block(colour)
+            project_item["image_sm"] = f'<img src="{project_item["image"]}" style="height: 45px" />'
             project_item["buy"] = int(project_item["qty"]) - (int(project_item["owned"]) if project_item["owned"] is not None else 0)
             if int(project_item["buy"]) <= 0:
                 project_item["buy"] = None
@@ -43,44 +44,44 @@ async def edit_project_list(db: sqlite3.Connection, project_id: int, project_nam
 
     column_defs = [
         {
-            "field": "id",
+            "field": "bl_item_no",
             "headerName": "Id",
             "editable": False,
-            "flex": 1,
+            "minWidth": "100",
         },
         {
-            "field": "colorName",
+            "field": "color_block",
             "headerName": "Color Name",
             "editable": False,
             "filter": "agTextColumnFilter",
-            "flex": 3,
+            "minWidth": "250",
         },
         {
             "field": "part_name",
             "headerName": "Part Name",
             "editable": False,
             "filter": "agTextColumnFilter",
-            "flex": 5,
+            "minWidth": "400",
         },
         {
             "field": "image_sm",
             "headerName": "Image",
             "editable": False,
-            "flex": 1,
+            "minWidth": "100",
         },
         {
             "field": "qty",
             "headerName": "Quantity",
             "editable": True,
             "type": "number",
-            "flex": 1,
+            "minWidth": "100",
         },
         {
             "field": "owned",
             "headerName": "Owned",
             "editable": True,
             "type": "number",
-            "flex": 1,
+            "minWidth": "100",
         },
         {
             "field": "buy",
@@ -88,7 +89,7 @@ async def edit_project_list(db: sqlite3.Connection, project_id: int, project_nam
             "editable": False,
             "type": "number",
             "filter": "agNumberColumnFilter",
-            "flex": 1,
+            "minWidth": "100",
         },
     ]
 

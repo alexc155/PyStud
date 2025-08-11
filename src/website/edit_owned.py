@@ -56,11 +56,11 @@ async def edit_owned(db: sqlite3.Connection) -> None:
         ui.aggrid(
             {
                 "columnDefs": [
-                    {"headerName": "Id", "field": "id", "checkboxSelection": True},
-                    {"headerName": "Color", "field": "colorName", "filter": "agTextColumnFilter"},
-                    {"headerName": "Part", "field": "partName", "filter": "agTextColumnFilter"},
-                    {"headerName": "Image", "field": "image"},
-                    {"headerName": "Quantity", "field": "quantity", "editable": True},
+                    {"headerName": "Id", "field": "id", "checkboxSelection": True, "minWidth": "100"},
+                    {"headerName": "Color", "field": "colorName", "filter": "agTextColumnFilter", "minWidth": "250"},
+                    {"headerName": "Part", "field": "partName", "filter": "agTextColumnFilter", "minWidth": "400"},
+                    {"headerName": "Image", "field": "image", "minWidth": "100"},
+                    {"headerName": "Quantity", "field": "quantity", "editable": True, "minWidth": "100"},
                 ],
                 "rowData": owned_items,
                 "rowSelection": "multiple",
@@ -93,8 +93,7 @@ async def edit_owned(db: sqlite3.Connection) -> None:
                 for colour in filtered_colours:
                     with ui.card().style("width: 300px"):
                         ui.html(build_colour_block(colour)).style(add="cursor: pointer").on(
-                            "click",
-                            lambda colour_id=int(colour["id"]): __update_colour(rows, colour_id),  # type: ignore
+                            "click", lambda e, colour_id=int(colour["id"]): __update_colour(rows, colour_id)
                         )
 
         rows = await grid.get_selected_rows()

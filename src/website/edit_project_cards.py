@@ -37,17 +37,13 @@ async def edit_project_cards(db: sqlite3.Connection, project_id: int, project_na
                     ui.label(f"{card_item['color_name']} {card_item['part_name']}").classes("col-span-full gap-0 overflow-scroll").style(
                         "max-width: 300px"
                     )
-                    ui.html(card_item["image_mid"]).classes("row-span-2 col-span-1").style("min-width: 150px")
+                    card_img = f'<img src="{card_item["image"]}" style="height: 80px" />'
+                    ui.html(card_img).classes("row-span-2 col-span-1").style("min-width: 150px")
 
                     with ui.row(wrap=False).classes("row-span-1 col-span-1"):
                         ui.input("Quantity", value=str(qty_input)).props("rounded outlined dense type=number").style(
                             "max-width: 100px;"
-                        ).on_value_change(
-                            lambda e, card_id=card_id: __update_project_item_qty(
-                                int(e.value or "0"),
-                                card_id,
-                            )
-                        )
+                        ).on_value_change(lambda e, card_id=card_id: __update_project_item_qty(int(e.value or "0"), card_id))
                     with ui.row(wrap=False).classes("row-span-1 col-span-1"):
                         ui.input("Owned", value=str(owned_input)).props("rounded outlined dense type=number").style(
                             "max-width: 100px;"

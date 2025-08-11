@@ -13,5 +13,5 @@
 / Add feedback and waits for long running operations
 / Add project items in parallel
 / Add calculated field for 'Buy'
-Export Buy list
-Package app
+/ Export Buy list
+/ Package app

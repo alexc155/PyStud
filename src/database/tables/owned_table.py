@@ -1,10 +1,13 @@
 import csv
 import sqlite3
 
+from nicegui import app
+
 from utils.image import get_image
+from utils.internet import check_internet_connection
 
 
-def __upsert(conn: sqlite3.Connection, cursor: sqlite3.Cursor, row: dict, add_to_existing: bool) -> None:
+def __upsert(conn: sqlite3.Connection, cursor: sqlite3.Cursor, row: dict, add_to_existing: bool, internet: bool) -> None:
     sqlExisting = """
             SELECT COUNT(*) AS count
             FROM owned
@@ -25,7 +28,7 @@ def __upsert(conn: sqlite3.Connection, cursor: sqlite3.Cursor, row: dict, add_to
             """
         cursor.execute(sql, (int(row["Quantity"]), row["Part"], int(row["Color"])))
     else:
-        image = get_image(row["Part"], int(row["Color"]))
+        image = get_image(row["Part"], int(row["Color"]), internet)
 
         sql = """
                 INSERT INTO owned (
@@ -44,8 +47,10 @@ def insert_owned(conn: sqlite3.Connection, owned_file: str) -> bool:
     """Insert owned elements into the SQLite database."""
     cursor = conn.cursor()
 
+    internet = check_internet_connection()
+
     for row in csv.DictReader(owned_file.splitlines(), delimiter=","):
-        __upsert(conn, cursor, row, True)
+        __upsert(conn, cursor, row, True, internet)
     return True
 
 
@@ -85,7 +90,7 @@ def delete_owned(conn: sqlite3.Connection, id: int) -> bool:
 def update_owned(conn: sqlite3.Connection, part: str, colour: int, owned: int | None) -> bool:
     cursor = conn.cursor()
 
-    __upsert(conn, cursor, {"Part": part, "Color": colour, "Quantity": owned}, False)
+    __upsert(conn, cursor, {"Part": part, "Color": colour, "Quantity": owned}, False, app.storage.general.get("internet", True))
 
     return True
 
@@ -112,7 +117,7 @@ def update_colour(conn: sqlite3.Connection, id: int, colour: int) -> bool:
 
     row[0]["Color"] = colour
 
-    __upsert(conn, cursor, row[0], True)
+    __upsert(conn, cursor, row[0], True, app.storage.general.get("internet", True))
 
     return True
 
