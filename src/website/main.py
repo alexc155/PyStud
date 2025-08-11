@@ -1,14 +1,12 @@
 # macOS packaging support
-from multiprocessing import freeze_support  # noqa
+from multiprocessing import freeze_support
 
-freeze_support()  # noqa
+freeze_support()
 
-# all your other imports and code
+from nicegui import app, native, ui  # noqa: E402
 
-from nicegui import app, native, ui
-
-from database import context
-from website.layout import layout
+from database import context  # noqa: E402
+from website.layout import layout  # noqa: E402
 
 # Db stuff
 db = context.connect()
@@ -24,5 +22,5 @@ async def show():
     await layout(db)
 
 
-ui.run(reload=False, port=native.find_open_port(), storage_secret="vruHItTN49uChT")
-# ui.run(reload=True, port=native.find_open_port(), storage_secret="vruHItTN49uChT")
+ui.run(reload=False, port=native.find_open_port(), storage_secret="vruHItTN49uChT", title="PyStud")
+# ui.run(reload=True, port=native.find_open_port(), storage_secret="vruHItTN49uChT", title="PyStud")
