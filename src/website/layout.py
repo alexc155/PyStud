@@ -48,6 +48,7 @@ async def layout(db: sqlite3.Connection):
 
         ui.space()
 
+        ui.button("exit", on_click=shutdown)
         ui.dark_mode().bind_value(app.storage.user, "dark_mode")
         ui.checkbox().bind_value(app.storage.user, "dark_mode").on_value_change(__dark_mode_change)
         ui.icon("brightness_auto").props("material").classes("text-2xl").style("padding: 0 10px 0 0")
@@ -67,6 +68,11 @@ async def layout(db: sqlite3.Connection):
             await edit_owned(db)
 
     return
+
+
+def shutdown():
+    ui.run_javascript("window.close()")
+    app.shutdown()
 
 
 __all__ = ["layout"]

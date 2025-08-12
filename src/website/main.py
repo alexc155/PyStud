@@ -6,22 +6,14 @@ freeze_support()
 import os  # noqa: E402
 
 import requests  # noqa: E402
-from nicegui import app, native, ui  # noqa: E402
-
-from database import context  # noqa: E402
-from website.layout import layout  # noqa: E402
-
-# Db stuff
-db = context.connect()
-context.create_tables(db)
 
 try:
-    os.makedirs('./PyStud/resources')
-    print(f"Nested directories './PyStud/resources' created successfully.")
+    os.makedirs("./PyStud/resources")
+    print("Nested directories './PyStud/resources' created successfully.")
 except FileExistsError:
     pass
 except PermissionError:
-    print(f"Permission denied: Unable to create './PyStud/resources'.")
+    print("Permission denied: Unable to create './PyStud/resources'.")
 except Exception as e:
     print(f"An error occurred: {e}")
 
@@ -65,14 +57,24 @@ if not os.path.isfile("./PyStud/resources/Question-Mark-Block.png"):
     with open("./PyStud/resources/Question-Mark-Block.png", "wb") as download:
         download.write(response.content)
 
+from nicegui import app, native, ui  # noqa: E402
+
+from database import context  # noqa: E402
+from website.layout import layout  # noqa: E402
+
+# Db stuff
+db = context.connect()
+context.create_tables(db)
+
 app.add_media_file(local_file="./PyStud/resources/Question-Mark-Block.png", url_path="/Question-Mark-Block.png")
+
+# app.on_exception(lambda: print('Shutdown'))
 
 @ui.page("/")
 async def show():
     ui.add_head_html('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">')
 
     await layout(db)
-
 
 ui.run(reload=False, port=native.find_open_port(), storage_secret="vruHItTN49uChT", title="PyStud")
 # ui.run(reload=True, port=native.find_open_port(), storage_secret="vruHItTN49uChT", title="PyStud")

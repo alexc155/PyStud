@@ -1,4 +1,8 @@
-rm -rf build/
-rm -rf dist/
+#!/bin/sh
 
-python -m PyInstaller --clean PyStud.spec
+rm -rf dist/PyStud.app
+
+python -m PyInstaller PyStud.spec
+
+cp -r PyStud/PyStud.app dist/PyStud.app
+mv dist/PyStud dist/PyStud.app/Contents/MacOS/

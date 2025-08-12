@@ -3,7 +3,7 @@ import sqlite3
 
 def connect() -> sqlite3.Connection:
     try:
-        conn = sqlite3.connect("PyStud.db", check_same_thread=False)
+        conn = sqlite3.connect("./PyStud/PyStud.db", check_same_thread=False)
         print(f"Opened SQLite database with version {sqlite3.sqlite_version} successfully.")
 
         return conn

@@ -81,7 +81,7 @@ multidict==6.6.3
     # via
     #   aiohttp
     #   yarl
-nicegui==2.21.1
+nicegui==2.22.2
     # via pystud (pyproject.toml)
 orjson==3.11.0 ; platform_machine != 'i386' and platform_machine != 'i686'
     # via nicegui
