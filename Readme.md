@@ -13,4 +13,4 @@ source .venv/bin/activate
 python3 ./src/website/main.py
 ```
 
-Then navigate to http://127.0.0.1:8000/_health in your browser.
+Then navigate to http://127.0.0.1:8000/ in your browser.

@@ -92,14 +92,9 @@ propcache==0.3.2
 pscript==0.7.7
     # via vbuild
 pydantic==2.11.7
-    # via
-    #   pystud (pyproject.toml)
-    #   fastapi
-    #   pydantic-settings
+    # via fastapi
 pydantic-core==2.33.2
     # via pydantic
-pydantic-settings==2.10.1
-    # via pystud (pyproject.toml)
 pygments==2.19.2
     # via nicegui
 pyinstaller==6.15.0
@@ -107,9 +102,7 @@ pyinstaller==6.15.0
 pyinstaller-hooks-contrib==2025.8
     # via pyinstaller
 python-dotenv==1.1.1
-    # via
-    #   pydantic-settings
-    #   uvicorn
+    # via uvicorn
 python-engineio==4.12.2
     # via
     #   nicegui
@@ -142,9 +135,7 @@ typing-extensions==4.14.1
     #   pydantic-core
     #   typing-inspection
 typing-inspection==0.4.1
-    # via
-    #   pydantic
-    #   pydantic-settings
+    # via pydantic
 urllib3==2.5.0
     # via requests
 uvicorn==0.35.0
