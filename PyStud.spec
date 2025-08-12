@@ -42,6 +42,6 @@ exe = EXE(
 app = BUNDLE(
     exe,
     name='PyStud.app',
-    icon='src/website/icon-windowed.icns',
+    icon='icon-windowed.icns',
     bundle_identifier=None,
 )

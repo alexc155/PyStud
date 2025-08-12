@@ -20,7 +20,7 @@ def __step(r: int, g: int, b: int, repetitions: int = 1) -> tuple:
 
 
 def get_colours() -> list[dict[str, str]]:
-    with open("./src/database/colors.csv") as data:
+    with open("./PyStud/resources/colors.csv") as data:
         dict_reader = DictReader(data)
 
         list_of_dict = list(dict_reader)

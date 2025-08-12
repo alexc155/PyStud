@@ -2,7 +2,7 @@ from csv import DictReader
 
 
 def get_elements() -> list[dict[str, str]]:
-    with open("./src/database/elements.csv") as data:
+    with open("./PyStud/resources/elements.csv") as data:
         dict_reader = DictReader(data)
 
         list_of_dict = list(dict_reader)
