@@ -9,6 +9,7 @@ classifiers = [
 dependencies = [
     "nicegui==2.22.2",
     "pyinstaller==6.15.0",
+    "pywebview==6.0",
     "requests==2.32.4",
 ]
 

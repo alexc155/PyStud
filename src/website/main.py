@@ -76,5 +76,15 @@ async def show():
 
     await layout(db)
 
-ui.run(reload=False, port=native.find_open_port(), storage_secret="vruHItTN49uChT", title="PyStud")
+app.native.window_args["zoomable"] = True
+app.native.window_args["text_select"] = True
+
+app.native.start_args["gui"] = "gtk"
+
+app.native.settings["ALLOW_DOWNLOADS"] = True
+app.native.settings["SHOW_DEFAULT_MENUS"] = False
+
+ui.run(reload=False, native=True, port=native.find_open_port(), storage_secret="vruHItTN49uChT", title="PyStud")
+
+# ui.run(reload=False, port=native.find_open_port(), storage_secret="vruHItTN49uChT", title="PyStud")
 # ui.run(reload=True, port=native.find_open_port(), storage_secret="vruHItTN49uChT", title="PyStud")

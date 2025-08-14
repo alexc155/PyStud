@@ -25,6 +25,8 @@ attrs==25.3.0
     # via aiohttp
 bidict==0.23.1
     # via python-socketio
+bottle==0.13.4
+    # via pywebview
 certifi==2025.7.14
     # via
     #   httpcore
@@ -33,7 +35,7 @@ certifi==2025.7.14
     #   requests
 charset-normalizer==3.4.2
     # via requests
-click==8.2.1
+click==8.1.8
     # via uvicorn
 docutils==0.21.2
     # via nicegui
@@ -89,6 +91,8 @@ propcache==0.3.2
     # via
     #   aiohttp
     #   yarl
+proxy-tools==0.1.0
+    # via pywebview
 pscript==0.7.7
     # via vbuild
 pydantic==2.11.7
@@ -101,6 +105,25 @@ pyinstaller==6.15.0
     # via pystud (pyproject.toml)
 pyinstaller-hooks-contrib==2025.8
     # via pyinstaller
+pyobjc-core==11.1
+    # via
+    #   pyobjc-framework-cocoa
+    #   pyobjc-framework-quartz
+    #   pyobjc-framework-security
+    #   pyobjc-framework-webkit
+    #   pywebview
+pyobjc-framework-cocoa==11.1
+    # via
+    #   pyobjc-framework-quartz
+    #   pyobjc-framework-security
+    #   pyobjc-framework-webkit
+    #   pywebview
+pyobjc-framework-quartz==11.1
+    # via pywebview
+pyobjc-framework-security==11.1
+    # via pywebview
+pyobjc-framework-webkit==11.1
+    # via pywebview
 python-dotenv==1.1.1
     # via uvicorn
 python-engineio==4.12.2
@@ -111,6 +134,8 @@ python-multipart==0.0.20
     # via nicegui
 python-socketio==5.13.0
     # via nicegui
+pywebview==6.0
+    # via pystud (pyproject.toml)
 pyyaml==6.0.2
     # via uvicorn
 requests==2.32.4
@@ -133,6 +158,7 @@ typing-extensions==4.14.1
     #   nicegui
     #   pydantic
     #   pydantic-core
+    #   pywebview
     #   typing-inspection
 typing-inspection==0.4.1
     # via pydantic
