@@ -31,10 +31,16 @@ async def layout(db: sqlite3.Connection):
             case _:
                 return
 
-    def __dark_mode_change(_: events.ValueChangeEventArguments):
+    def __dark_mode_change(val):
+        dark_mode.set_value(val)
         edit_project_list.refresh(db, project["id"], project["name"])
         edit_project_cards.refresh(db, project["id"], project["name"])
         edit_owned.refresh(db)
+
+    def __zoom(adjustment):
+        ui.run_javascript(f"""
+                            window.document.body.style["zoom"] = parseFloat(window.getComputedStyle(document.body).zoom) + parseFloat({adjustment})
+                          """)
 
     with ui.header().classes(replace="row items-center"):
         ui.label("PyStud").classes("font-bold").style("padding: 0 10px 0 10px")
@@ -48,10 +54,22 @@ async def layout(db: sqlite3.Connection):
 
         ui.space()
 
+        dark_mode = ui.dark_mode().bind_value(app.storage.user, "dark_mode")
+
+        with ui.element().classes("max-[420px]:hidden").tooltip("Cycle theme mode through dark, light, and system/auto."):
+            ui.button(icon="dark_mode", on_click=lambda: __dark_mode_change(None)).props("flat fab-mini color=white").bind_visibility_from(
+                dark_mode, "value", value=True
+            )
+            ui.button(icon="light_mode", on_click=lambda: __dark_mode_change(True)).props("flat fab-mini color=white").bind_visibility_from(
+                dark_mode, "value", value=False
+            )
+            ui.button(icon="brightness_auto", on_click=lambda: __dark_mode_change(False)).props(
+                "flat fab-mini color=white"
+            ).bind_visibility_from(dark_mode, "value", lambda mode: mode is None)
+
+        ui.button("-", on_click=lambda: __zoom('-0.1'))
+        ui.button("+", on_click=lambda: __zoom('0.1'))
         ui.button("exit", on_click=shutdown)
-        ui.dark_mode().bind_value(app.storage.user, "dark_mode")
-        ui.checkbox().bind_value(app.storage.user, "dark_mode").on_value_change(__dark_mode_change)
-        ui.icon("brightness_auto").props("material").classes("text-2xl").style("padding: 0 10px 0 0")
 
     with ui.tab_panels(tabs, value="All Projects").classes("w-full"):
         with ui.tab_panel("All Projects"):

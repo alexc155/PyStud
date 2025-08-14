@@ -73,13 +73,15 @@ app.add_media_file(local_file="./PyStud/resources/Question-Mark-Block.png", url_
 @ui.page("/")
 async def show():
     ui.add_head_html('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">')
+    ui.add_css("""body {
+        zoom: 0.8;
+        }""")
 
     await layout(db)
 
+# app.native.start_args["debug"] = True
 app.native.window_args["zoomable"] = True
 app.native.window_args["text_select"] = True
-
-app.native.start_args["gui"] = "gtk"
 
 app.native.settings["ALLOW_DOWNLOADS"] = True
 app.native.settings["SHOW_DEFAULT_MENUS"] = False
